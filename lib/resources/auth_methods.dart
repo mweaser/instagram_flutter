@@ -3,10 +3,20 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:instagram_flutter/resources/storage_methods.dart';
+import 'package:instagram_flutter/models/user.dart' as model;
 
 class AuthMethods {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseFirestore _fireStore = FirebaseFirestore.instance;
+
+  Future<model.User> getUserDetails() async {
+    User currentUser = _auth.currentUser!;
+
+    DocumentSnapshot snapshot =
+        await _fireStore.collection('users').doc(currentUser.uid).get();
+    return model.User.fromSnap(snapshot);
+  }
+
   // Sign up function
   Future<String> signUpUser(
       {required String email,
@@ -28,19 +38,49 @@ class AuthMethods {
 
         String photoUrl = await StorageMethods()
             .uploadImageToStorage('profilePics', file, false);
+        model.User user = model.User(
+            username: username,
+            uid: cred.user!.uid,
+            email: email,
+            bio: bio,
+            followers: [],
+            following: [],
+            photoUrl: photoUrl);
 
         // Add user to database
-        await _firestore.collection('users').doc(cred.user!.uid).set({
-          'username': username,
-          'uid': cred.user!.uid,
-          'email': email,
-          'bio': bio,
-          'followers': [],
-          'following': [],
-          'photoUrl': photoUrl,
-        });
+        await _fireStore.collection('users').doc(cred.user!.uid).set(
+              user.toJson(),
+            );
 
         res = "success";
+      }
+    } on FirebaseAuthException catch (err) {
+      if (err.code == 'user-not-found') {
+        res = "The user is not found.";
+      } else if (err.code == 'invalid-email') {
+        res = 'The email is badly formatted.';
+      } else if (err.code == 'weak-password') {
+        res = 'Password should be at least 6 characters';
+      }
+    } catch (err) {
+      res = err.toString();
+    }
+    return res;
+  }
+
+  //Login Function
+
+  Future<String> loginUser(
+      {required String email, required String password}) async {
+    String res = "Some error occured";
+
+    try {
+      if (email.isNotEmpty || password.isNotEmpty) {
+        await _auth.signInWithEmailAndPassword(
+            email: email, password: password);
+        res = "success";
+      } else {
+        res = "Please enter all the fields";
       }
     } catch (err) {
       res = err.toString();
