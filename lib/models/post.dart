@@ -1,14 +1,15 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart';
 
 class Post {
   final String uid;
   final String description;
   final String username;
   final String postId;
-  final String datePublished;
-  final List postUrl;
-  final List profImage;
-  final likes;
+  final DateTime datePublished;
+  final String postUrl;
+  final String profImage;
+  final List likes;
 
   const Post(
       {required this.uid,
