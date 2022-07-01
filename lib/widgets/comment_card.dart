@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class CommentCard extends StatefulWidget {
-  const CommentCard({Key? key}) : super(key: key);
+  final snap;
+  const CommentCard({Key? key, required this.snap}) : super(key: key);
 
   @override
   State<CommentCard> createState() => _CommentCardState();
@@ -17,7 +19,8 @@ class _CommentCardState extends State<CommentCard> {
           CircleAvatar(
             radius: 18,
             backgroundImage: NetworkImage(
-                "https://images.unsplash.com/photo-1656231888487-e75d0b793d1b?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1662&q=80"),
+              widget.snap['profilePic'],
+            ),
           ),
           Expanded(
             child: Padding(
@@ -32,13 +35,16 @@ class _CommentCardState extends State<CommentCard> {
                     text: TextSpan(
                       children: [
                         TextSpan(
-                          text: "username",
+                          text: widget.snap['name'],
                           style: const TextStyle(
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                         TextSpan(
-                          text: "some description to insert",
+                          text: "  ",
+                        ),
+                        TextSpan(
+                          text: widget.snap['text'],
                           style: const TextStyle(),
                         ),
                       ],
@@ -47,7 +53,9 @@ class _CommentCardState extends State<CommentCard> {
                   Padding(
                     padding: const EdgeInsets.only(top: 4),
                     child: Text(
-                      '23/12/21',
+                      DateFormat.yMMMd().format(
+                        widget.snap['datePublished'].toDate(),
+                      ),
                       style:
                           TextStyle(fontSize: 12, fontWeight: FontWeight.w400),
                     ),
