@@ -1,6 +1,6 @@
 # instagram_flutter
 
-A new Flutter project.
+Instagram Clone made using Flutter. Instructed by Rivaan Ranawat
 
 ## Getting Started
 
